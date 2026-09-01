@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ديجي‌تاسك - إدارة المهام الفاخرة المحدثة</title>
+    <!-- تضمين مكتبة Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- تضمين خطوط جوجل الفاخرة لضمان جودة النصوص والتباين البصري -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Tajawal', 'Plus Jakarta Sans', sans-serif; 
+        }
+        /* إخفاء أشرطة التمرير للحفاظ على هدوء الواجهات */
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* تأثيرات تنقل النوافذ والتوست */
+        @keyframes modal-fade-in {
+            from { opacity: 0; transform: scale(0.97) translateY(8px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .animate-modal-in {
+            animation: modal-fade-in 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        
+        @keyframes toast-in { 
+            from { opacity: 0; transform: translateY(12px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        .animate-toast-in { animation: toast-in 0.3s ease-out forwards; }
+    </style>
+</head>
+<body class="bg-[#FAFBFB] text-gray-900 flex flex-col min-h-screen selection:bg-black selection:text-white">
+
+    <!-- شريط التنقل العلوي الفخم والمثبت -->
+    <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-100/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            
+            <!-- معلومات الحساب والمستعرض الفوري للدور -->
+            <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2 bg-neutral-50 border border-neutral-100 rounded-2xl p-1.5 pl-3">
+                    <img id="current-user-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=100&auto=format&fit=crop" alt="الصورة الشخصية" class="w-8 h-8 rounded-xl object-cover border border-black/5">
+                    <div class="text-right hidden sm:block">
+                        <p id="current-user-name" class="text-xs font-bold text-gray-900">أحمد علوي</p>
+                        <p id="current-user-role-badge" class="text-[10px] text-gray-400 font-medium">مدير النظام</p>
+                    </div>
+                </div>
+
+                <!-- زر محاكاة تبديل الأدوار السريع للفحص والاختبار -->
+                <button type="button" id="toggle-role-btn" class="text-xs bg-black hover:bg-neutral-800 text-white font-bold px-3 py-2.5 rounded-xl transition-all duration-200 flex items-center gap-1.5 shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                    </svg>
+                    <span>تبديل الدور لمستخدم عادي</span>
+                </button>
+            </div>
+
+            <!-- روابط التنقل بين الصفحات الرئيسية بشكل مبسط -->
+            <nav class="hidden md:flex items-center gap-8 font-medium text-sm">
+                <button type="button" id="nav-groups" class="nav-tab-btn text-black border-b-2 border-black pb-1 font-bold transition-all" onclick="switchMainTab('groups')">مجموعات العمل</button>
+                <button type="button" id="nav-calendar" class="nav-tab-btn text-gray-400 hover:text-black pb-1 transition-all" onclick="switchMainTab('calendar')">سجل الإنجاز اليومي</button>
+                <button type="button" id="nav-team" class="nav-tab-btn text-gray-400 hover:text-black pb-1 transition-all" onclick="switchMainTab('team')">فريق العمل</button>
+            </nav>
+
+            <!-- الشعار -->
+            <a href="#" class="text-2xl font-bold tracking-tight text-black">ديجي<span class="text-gray-400 font-normal">تاسك</span></a>
+        </div>
+    </header>
+
+    <!-- حاوية المحتوى الرئيسي للمنصة -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        
+        <!-- ================== 1. تبويب مجموعات العمل (Groups Tab) ================== -->
+        <section id="tab-content-groups" class="space-y-8">
+            
+            <!-- أ) واجهة عرض قائمة المجموعات الافتراضية -->
+            <div id="groups-list-view" class="space-y-6">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-gray-100 pb-5">
+                    <div class="text-right">
+                        <h1 class="text-xl sm:text-2xl font-bold text-gray-900">مجموعات العمل النشطة</h1>
+                        <p class="text-xs text-gray-400 mt-1">اضغط على أي مجموعة عمل لاستكشاف وإدارة المهام داخلها</p>
+                    </div>
+                    <!-- زر إضافة مجموعة (متاح فقط للآدمن) -->
+                    <button type="button" id="open-add-group-modal" class="admin-only bg-black hover:bg-neutral-850 text-white text-xs font-bold px-5 py-3 rounded-xl transition-all flex items-center gap-2 shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                        </svg>
+                        <span>إنشاء مجموعة جديدة</span>
+                    </button>
+                </div>
+
+                <!-- شبكة كروت المجموعات -->
+                <div id="groups-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- سيتم تعبئة المجموعات برمجياً هنا -->
+                </div>
+            </div>
+
+            <!-- ب) واجهة تفاصيل المجموعة الواحدة (تظهر فقط عند فتح مجموعة) -->
+            <div id="group-detail-view" class="hidden space-y-6">
+                
+                <!-- زر الرجوع للمجموعات + العنوان والتحكم -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 pb-5">
+                    <div class="flex items-center gap-3 text-right">
+                        <!-- زر العودة الفخم -->
+                        <button type="button" onclick="closeGroupDetail()" class="p-2.5 bg-white hover:bg-gray-100 text-gray-600 rounded-xl border border-gray-150 transition-all flex items-center justify-center shrink-0" aria-label="الرجوع لقائمة المجموعات">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                            </svg>
+                        </button>
+                        <div>
+                            <span id="group-detail-badge" class="inline-block bg-neutral-100 text-neutral-800 text-[9px] font-bold px-2 py-0.5 rounded-md mb-1">تفاصيل المجموعة</span>
+                            <h2 id="group-detail-name" class="text-xl font-bold text-gray-900">اسم المجموعة</h2>
+                            <p id="group-detail-desc" class="text-xs text-gray-400 mt-0.5">وصف مبسط وعام لطبيعة مجموعة العمل الحالية</p>
+                        </div>
+                    </div>
+
+                    <!-- خيارات الفلتر والبحث الداخلي للمجموعة النشطة -->
+                    <div class="flex items-center gap-2 self-stretch sm:self-auto">
+                        <select id="task-status-filter" onchange="renderGroupTasks()" class="text-xs bg-white border border-gray-200 focus:border-black rounded-xl px-3 py-2.5 outline-none transition-all">
+                            <option value="all">كل حالات المهام</option>
+                            <option value="pending">قيد التنفيذ فقط</option>
+                            <option value="completed">المكتملة فقط</option>
+                        </select>
+                        
+                        <!-- زر إضافة مهمة جديدة داخل هذه المجموعة المحددة (Admin Only) -->
+                        <button type="button" id="open-add-task-modal" class="admin-only bg-black hover:bg-neutral-850 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all flex items-center gap-2 shadow-sm shrink-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                            </svg>
+                            <span>إسناد مهمة للمجموعة</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- شبكة كروت المهام داخل هذه المجموعة بالتحديد -->
+                <div id="group-tasks-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- سيتم توليد المهام الخاصة بالمجموعة ديناميكياً هنا -->
+                </div>
+
+                <!-- شاشة الحالة الفارغة للمهام -->
+                <div id="group-tasks-empty" class="hidden flex-col items-center justify-center p-12 text-center bg-white rounded-2xl border border-dashed border-gray-200">
+                    <div class="w-14 h-14 bg-neutral-50 rounded-xl flex items-center justify-center text-gray-300 mb-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.2" stroke="currentColor" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.375M9 18h3.375m-6.43-16.03a3 3 0 0 1 4.5 0l2.36 2.36a.75.75 0 0 1 0 1.06l-6.36 6.36a1.5 1.5 0 0 1-.39.27l-2.03.71a.75.75 0 0 1-.95-.95l.71-2.03a1.5 1.5 0 0 1 .27-.39l6.36-6.36ZM19.5 9.75V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.25A2.25 2.25 0 0 1 6.75 4H13.5" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xs font-bold text-gray-900">لا توجد مهام نشطة حالياً</h3>
+                    <p class="text-[11px] text-gray-400 max-w-xs mt-1">هذه المجموعة خالية تماماً من المهام المطابقة لخيارات الفلترة المحددة.</p>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- ================== 2. تبويب سجل الإنجاز السنوي واليومي (Calendar Tab) ================== -->
+        <section id="tab-content-calendar" class="hidden space-y-6">
+            
+            <div class="border-b border-gray-100 pb-5 text-right">
+                <h1 class="text-xl sm:text-2xl font-bold text-gray-900">سجل الإنجاز التاريخي</h1>
+                <p class="text-xs text-gray-400 mt-1">اختر أي يوم على طول السنوات والشهور لاستعراض المهام التي أتمها الفريق بنجاح في هذا اليوم</p>
+            </div>
+
+            <!-- بطاقة التحكم واختيار التاريخ عبر السنوات -->
+            <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="flex items-center gap-4 text-right">
+                    <div class="w-12 h-12 bg-black text-white rounded-xl flex items-center justify-center font-bold text-lg shrink-0">
+                        🗓️
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-gray-950">مستكشف التقويم المستمر</h3>
+                        <p class="text-xs text-gray-400 mt-0.5">يمكنك تغيير السنة واليوم بحرية للتحقق من الموثوقية</p>
+                    </div>
+                </div>
+
+                <!-- أداة إدخال التاريخ بتصميم فخم ومتناسق مع الطابع الأحادي -->
+                <div class="flex items-center gap-2 self-stretch md:self-auto">
+                    <label for="history-date-picker" class="text-xs font-bold text-gray-600 hidden sm:block">اختر التاريخ المطلوب:</label>
+                    <input type="date" id="history-date-picker" onchange="loadArchiveForDate()" class="w-full sm:w-auto bg-gray-50 border border-gray-200 focus:border-black focus:bg-white rounded-xl px-4 py-3 text-sm font-semibold outline-none transition-all">
+                </div>
+            </div>
+
+            <!-- نتائج الإنجاز المكتملة في ذلك اليوم -->
+            <div class="space-y-4">
+                <div class="flex items-center justify-between px-1">
+                    <h2 class="text-sm font-bold text-gray-900">المهام المنجزة في التاريخ المحدد</h2>
+                    <span id="archive-date-indicator" class="text-xs font-bold text-black bg-[#E8DFD4] px-3 py-1 rounded-full">...</span>
+                </div>
+
+                <div id="archive-tasks-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- سيتم ملؤها ديناميكياً بناءً على التاريخ المختار -->
+                </div>
+
+                <!-- لوحة خالية عندما لا توجد إنجازات في التاريخ المحدد -->
+                <div id="archive-empty-state" class="hidden flex-col items-center justify-center p-12 text-center bg-white rounded-2xl border border-dashed border-gray-200">
+                    <div class="w-14 h-14 bg-neutral-50 rounded-xl flex items-center justify-center text-gray-300 mb-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.2" stroke="currentColor" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xs font-bold text-gray-900">لم يتم إنجاز مهام في هذا اليوم</h3>
+                    <p class="text-[11px] text-gray-400 max-w-xs mt-1">لم يتم إكمال أو تسليم أي مهام في التاريخ المحدد عبر كافة المجموعات النشطة.</p>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ================== 3. تبويب فريق العمل (Team Tab) ================== -->
+        <section id="tab-content-team" class="hidden space-y-6">
+            
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-gray-100 pb-5">
+                <div class="text-right">
+                    <h1 class="text-xl sm:text-2xl font-bold text-gray-900">أعضاء ومستلمي المهام</h1>
+                    <p class="text-xs text-gray-400 mt-1">قائمة بأعضاء النظام المغلق مع إمكانية إشراك موظفين جدد من قبل الإدارة</p>
+                </div>
+                <!-- زر إضافة مستخدم (متاح للمشرف فقط) -->
+                <button type="button" id="open-add-user-modal" class="admin-only bg-black hover:bg-neutral-850 text-white text-xs font-bold px-5 py-3 rounded-xl transition-all flex items-center gap-2 shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
+                    </svg>
+                    <span>إضافة عضو للفريق</span>
+                </button>
+            </div>
+
+            <!-- شبكة استعراض الموظفين بمظهر بطاقات فخم -->
+            <div id="team-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- سيتم تعبئة الأعضاء ديناميكياً -->
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- حاوية الإشعارات الجانبية (Toasts) -->
+    <div id="toast-container" class="fixed bottom-6 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-sm z-[70] flex flex-col items-end pointer-events-none gap-2"></div>
+
+    <!-- ================== النوافذ المنبثقة (Modals) ================== -->
+
+    <!-- أ) نافذة إضافة مستخدم جديد (Admin Only) -->
+    <div id="add-user-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden" role="dialog" aria-modal="true">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm modal-close-trigger"></div>
+        <div class="relative bg-white w-full max-w-md mx-4 rounded-3xl p-6 sm:p-8 shadow-2xl border border-gray-100 animate-modal-in z-10">
+            <div class="flex items-start justify-between gap-4 mb-6">
+                <div class="text-right">
+                    <h3 class="text-lg font-bold text-gray-900">إضافة عضو جديد للفريق</h3>
+                    <p class="text-xs text-gray-400 mt-1">قم بتعبئة التفاصيل لإنشاء حساب مغلق للأعضاء الجدد</p>
+                </div>
+                <button type="button" class="modal-close-trigger p-1.5 text-gray-400 hover:text-black hover:bg-gray-50 rounded-xl transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+                </button>
+            </div>
+
+            <form id="add-user-form" class="space-y-4 text-right">
+                <div>
+                    <label for="new-user-name" class="block text-xs font-bold text-gray-700 mb-1.5">الاسم الكامل</label>
+                    <input type="text" id="new-user-name" required class="w-full bg-gray-50 border border-gray-200 focus:border-black focus:bg-white rounded-xl px-4 py-3 text-sm transition-all outline-none" placeholder="مثال: يوسف أحمد">
+                </div>
+                <div>
+                    <label for="new-user-email" class="block text-xs font-bold text-gray-700 mb-1.5">البريد الإلكتروني</label>
+                    <input type="email" id="new-user-email" required class="w-full bg-gray-50 border border-gray-200 focus:border-black focus:bg-white rounded-xl px-4 py-3 text-sm transition-all outline-none" placeholder="yousef@task.com">
+                </div>
+                <div>
+                    <label for="new-user-role" class="block text-xs font-bold text-gray-700 mb-1.5">الصلاحية والرتبة</label>
+                    <select id="new-user-role" required class="w-full bg-gray-50 border border-gray-200 focus:border-black focus:bg-white rounded-xl px-4 py-3 text-sm transition-all outline-none">
+                        <option value="user">مستخدم عادي (إنجاز المهام المسندة له فقط)</option>
+                        <option value="admin">مدير نظام (صلاحية كاملة في إضافة الأعضاء والمهام)</option>
+                    </select>
+                </div>
+                <div class="pt-2">
+                    <button type="submit" class="w-full bg-black hover:bg-neutral-800 text-white font-bold py-3.5 rounded-xl text-xs transition-colors">حفظ وتأكيد الإضافة</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ب) نافذة إضافة مجموعة جديدة -->
+    <div id="add-group-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden" role="dialog" aria-modal="true">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm modal-close-trigger"></div>
+        <div class="relative bg-white w-full max-w-md mx-4 rounded-3xl p-6 sm:p-8 shadow-2xl border border-gray-100 animate-modal-in z-10">
+            <div class="flex items-start justify-between gap-4 mb-6">
+                <div class="text-right">
+                    <h3 class="text-lg font-bold text-gray-900">إنشاء مجموعة مهام جديدة</h3>
+                    <p class="text-xs text-gray-400 mt-1">استخدم المجموعات لتقسيم العمل حسب الأقسام أو المشاريع</p>
+                </div>
+                <button type="button" class="modal-close-trigger p-1.5 text-gray-400 hover:text-black hover:bg-gray-50 rounded-xl transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+                </button>
+            </div>
+
+            <form id="add-group-form" class="space-y-4 text-right">
+                <div>
+                    <label for="new-group-name" class="block text-xs font-bold text-gray-700 mb-1.5">اسم المجموعة / المشروع</label>
+                    <input type="text" id="new-group-name" required class="w-full bg-gray-50 border border-gray-200 focus:border-black focus:bg-white rounded-xl px-4 py-3 text-sm transition-all outline-none" placeholder="مثال: تطوير متجر الهواتف">
+                </div>
+                <div>
+                    <label for="new-group-desc" class="block text-xs font-bold text-gray-700 mb-1.5">وصف مبسط للمجموعة</label>
+                    <textarea id="new-group-desc" required rows="3" class="w-full bg-gray-50 border border-gray-200 focus:border-black focus:bg-white rounded-xl px-4 py-3 text-sm transition-all outline-none resize-none" placeholder="اكتب هنا هدف أو طبيعة عمل هذه المجموعة..."></textarea>
+                </div>
+                <div class="pt-2">
+                    <button type="submit" class="w-full bg-black hover:bg-neutral-800 text-white font-bold py-3.5 rounded-xl text-xs transition-colors">إنشاء المجموعة</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ج) نافذة إضافة مهمة جديدة وتعيينها مع خاصية اختيار لون المهمة (Admin Only) -->
+    <div id="add-task-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden" role="dialog" aria-modal="true">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm modal-close-trigger"></div>
+        <div class="relative bg-white w-full max-w-lg mx-4 rounded-3xl p-6 sm:p-8 shadow-2xl border border-gray-100 animate-modal-in z-10">
+            <div class="flex items-start justify-between gap-4 mb-6">
+                <div class="text-right">
+                    <h3 class="text-lg font-bold text-gray-900">إسناد مهمة جديدة</h3>
+                    <p class="text-xs text-gray-400 mt-1">اختر المسؤول وتاريخ التسليم ولون البوكس المناسب لتسهيل الفرز</p>
+                </div>
+                <button type="button" class="modal-close-trigger p-1.5 text-gray-400 hover:text-black hover:bg-gray-50 rounded-xl transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+                </button>
+            </div>
+
+            <form id="add-task-form" class="space-y-4 text-right">
+                <div>
+                    <label for="new-task-title" class="block text-xs font-bold text-gray-700 mb-1.5">عنوان المهمة</label>
+                    <input type="text" id="new-task-title" required class="w-full bg-gray-50 border border-gray-200 focus:border-black focus:bg-white rounded-xl px-4 py-3 text-sm transition-all outline-none" placeholder="مثال: تفعيل بوابات الدفع الإلكتروني">
+                </div>
+                
+                <div>
+                    <label for="new-task-desc" class="block text-xs font-bold text-gray-700 mb-1.5">الوصف والتفاصيل</label>
+                    <textarea id="new-task-desc" required rows="3" class="w-full bg-gray-50 border border-gray-200 focus:border-black focus:bg-white rounded-xl px-4 py-3 text-sm transition-all outline-none resize-none" placeholder="اكتب الخطوات أو المتطلبات لإنجاز هذه المهمة..."></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="new-task-user" class="block text-xs font-bold text-gray-700 mb-1.5">تعيين إلى (مسؤول المهمة)</label>
+                        <select id="new-task-user" required class="w-full bg-gray-50 border border-gray-200 focus:border-black focus:bg-white rounded-xl px-4 py-3 text-sm transition-all outline-none">
+                            <!-- خيارات المستخدمين الديناميكية -->
+                        </select>
+                    </div>
+                    <div>
+                        <label for="new-task-date" class="block text-xs font-bold text-gray-700 mb-1.5">الموعد النهائي للتسليم</label>
+                        <input type="date" id="new-task-date" required class="w-full bg-gray-50 border border-gray-200 focus:border-black focus:bg-white rounded-xl px-4 py-3 text-sm transition-all outline-none">
+                    </div>
+                </div>
+
+                <!-- ميزة اختيار اللون الخاص ببكس المهمة -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-2">اختر لون بوكس المهمة (للتمييز البصري):</label>
+                    <div class="grid grid-cols-4 sm:grid-cols-7 gap-2">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="new-task-color" value="classic" checked class="peer sr-only">
+                            <div class="peer-checked:ring-2 peer-checked:ring-black border border-gray-200 rounded-xl py-2 px-1 text-center text-[10px] font-bold bg-white text-gray-800 transition-all">أبيض</div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="new-task-color" value="pastel-red" class="peer sr-only">
+                            <div class="peer-checked:ring-2 peer-checked:ring-rose-400 border border-rose-100 rounded-xl py-2 px-1 text-center text-[10px] font-bold bg-rose-50/70 text-rose-800 transition-all">وردي</div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="new-task-color" value="pastel-blue" class="peer sr-only">
+                            <div class="peer-checked:ring-2 peer-checked:ring-sky-400 border border-sky-100 rounded-xl py-2 px-1 text-center text-[10px] font-bold bg-sky-50/70 text-sky-800 transition-all">سماوي</div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="new-task-color" value="pastel-green" class="peer sr-only">
+                            <div class="peer-checked:ring-2 peer-checked:ring-emerald-400 border border-emerald-100 rounded-xl py-2 px-1 text-center text-[10px] font-bold bg-emerald-50/70 text-emerald-800 transition-all">زمردي</div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="new-task-color" value="pastel-amber" class="peer sr-only">
+                            <div class="peer-checked:ring-2 peer-checked:ring-amber-400 border border-amber-100 rounded-xl py-2 px-1 text-center text-[10px] font-bold bg-amber-50/70 text-amber-800 transition-all">ذهبي</div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="new-task-color" value="pastel-purple" class="peer sr-only">
+                            <div class="peer-checked:ring-2 peer-checked:ring-purple-400 border border-purple-100 rounded-xl py-2 px-1 text-center text-[10px] font-bold bg-purple-50/70 text-purple-800 transition-all">بنفسجي</div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="new-task-color" value="pastel-neutral" class="peer sr-only">
+                            <div class="peer-checked:ring-2 peer-checked:ring-neutral-400 border border-[#EAE3D2] rounded-xl py-2 px-1 text-center text-[10px] font-bold bg-[#FDFBF7] text-[#5C4A3A] transition-all">رملي</div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" class="w-full bg-black hover:bg-neutral-800 text-white font-bold py-3.5 rounded-xl text-xs transition-colors">إسناد المهمة للمجموعة</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- الجزء البرمجي الذكي لإدارة الحالة الفورية للبروتوتايب -->
+    <script>
+        // تعريف وتوطين مستخدمي النظام المغلق
+        let users = [
+            { 
+                id: 'user-1', 
+                name: 'أحمد علوي', 
+                email: 'ahmed@task.com', 
+                role: 'admin', 
+                avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=100&auto=format&fit=crop' 
+            },
+            { 
+                id: 'user-2', 
+                name: 'سارة بلقاسم', 
+                email: 'sara@task.com', 
+                role: 'user', 
+                avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=100&auto=format&fit=crop' 
+            },
+            { 
+                id: 'user-3', 
+                name: 'محمد الأمين', 
+                email: 'amine@task.com', 
+                role: 'user', 
+                avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=100&auto=format&fit=crop' 
+            },
+            { 
+                id: 'user-4', 
+                name: 'منى الداودي', 
+                email: 'mouna@task.com', 
+                role: 'user', 
+                avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=100&auto=format&fit=crop' 
+            }
+        ];
+
+        // المجموعات النشطة
+        let groups = [
+            { 
+                id: 'group-1', 
+                name: 'تطوير المنصات الرقمية', 
+                description: 'برمجة الواجهات والربط البرمجي الكامل لقنوات الدفع وتجربة المستخدم.' 
+            },
+            { 
+                id: 'group-2', 
+                name: 'الحملة التسويقية لعام 2026', 
+                description: 'إطلاق وتصميم الهوية الفاخرة للترويج للخدمات الذكية بالتعاون مع جهات الدعم.' 
+            },
+            { 
+                id: 'group-3', 
+                name: 'التصميم وتطوير تجربة المستخدم UI/UX', 
+                description: 'تجهيز اللوغو والتصاميم الفنية الأنيقة المعتمدة على النمط الأحادي الفاخر.' 
+            }
+        ];
+
+        // قائمة المهام مع تحديد الألوان والتاريخ المكتمل ومطابقتها للمجموعة المناسبة
+        let tasks = [
+            { 
+                id: 'task-1', 
+                title: 'تصميم واجهات نموذج لوحة تحكم ديجي‌تاسك', 
+                description: 'إنشاء الهيكل الفاخر المعتمد على اللونين الأبيض والأسود بطابع متجر أيور وتوزيعه.', 
+                groupId: 'group-3', 
+                assignedTo: 'user-2', 
+                status: 'completed', 
+                dueDate: '2026-06-25',
+                color: 'pastel-purple', // اللون البنفسجي المختار
+                completedDate: '2026-06-23' // تم الانتهاء اليوم
+            },
+            { 
+                id: 'task-2', 
+                title: 'تأسيس بيئة التطوير للواجهات الخلفية وسجل الأحداث', 
+                description: 'إعداد الخوادم الرئيسية للـ Backend وبناء مخطط قاعدة البيانات الأولي للربط مع cursor.', 
+                groupId: 'group-1', 
+                assignedTo: 'user-3', 
+                status: 'pending', 
+                dueDate: '2026-06-30',
+                color: 'pastel-blue', // سماوي
+                completedDate: null
+            },
+            { 
+                id: 'task-3', 
+                title: 'مراجعة وتصميم الشعارات ومجلة الألوان', 
+                description: 'دراسة التناغم البصري لتطبيقات الجيل القادم وتقديم لوحة الألوان الترابية المتوازنة.', 
+                groupId: 'group-3', 
+                assignedTo: 'user-4', 
+                status: 'completed', 
+                dueDate: '2026-06-22',
+                color: 'pastel-green', // زمردي
+                completedDate: '2026-06-22' // أتمت يوم أمس
+            },
+            { 
+                id: 'task-4', 
+                title: 'كتابة وإنتاج النصوص التسويقية وقنوات البث المباشر', 
+                description: 'صياغة العقود والرعاة وبث الإشهارات لقسم المبيعات للتأكيد النهائي.', 
+                groupId: 'group-2', 
+                assignedTo: 'user-2', 
+                status: 'pending', 
+                dueDate: '2026-07-05',
+                color: 'pastel-amber', // ذهبي
+                completedDate: null
+            }
+        ];
+
+        // الحالة النشطة
+        let currentUser = users[0]; // افتراضياً هو مدير النظام
+        let currentTab = 'groups'; // التبويب الافتراضي النشط
+        let activeGroupId = null; // المجموعة المفتوحة حالياً (null تعني أننا في قائمة المجموعات)
+
+        // خريطة لترجمة ألوان التصميم الفاخر لفئات Tailwind
+        const colorClassMap = {
+            'classic': {
+                card: 'bg-white border-gray-150',
+                badge: 'bg-neutral-100 text-neutral-800'
+            },
+            'pastel-red': {
+                card: 'bg-rose-50/70 border-rose-100',
+                badge: 'bg-rose-100 text-rose-800'
+            },
+            'pastel-blue': {
+                card: 'bg-sky-50/70 border-sky-100',
+                badge: 'bg-sky-100 text-sky-800'
+            },
+            'pastel-green': {
+                card: 'bg-emerald-50/70 border-emerald-100',
+                badge: 'bg-emerald-100 text-emerald-800'
+            },
+            'pastel-amber': {
+                card: 'bg-amber-50/70 border-amber-100',
+                badge: 'bg-amber-100 text-amber-800'
+            },
+            'pastel-purple': {
+                card: 'bg-purple-50/70 border-purple-100',
+                badge: 'bg-purple-100 text-purple-800'
+            },
+            'pastel-neutral': {
+                card: 'bg-[#FDFBF7] border-[#EAE3D2]',
+                badge: 'bg-[#EAE3D2] text-[#5C4A3A]'
+            }
+        };
+
+        // نظام الإشعارات الفوري بدون استخدام التنبيهات المزعجة
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const id = 'toast-' + Date.now();
+            
+            const toast = document.createElement('div');
+            toast.id = id;
+            toast.className = "animate-toast-in pointer-events-auto flex items-center gap-3 bg-white border border-gray-100 rounded-2xl p-4 shadow-xl text-right max-w-sm w-full";
+            
+            let colorClasses = type === 'success' ? 'text-emerald-500 bg-emerald-50' : 'text-amber-500 bg-amber-50';
+            let icon = type === 'success' 
+                ? `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>`
+                : `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" /></svg>`;
+
+            toast.innerHTML = `
+                <div class="p-2 rounded-xl ${colorClasses} shrink-0">
+                    ${icon}
+                </div>
+                <div class="flex-1">
+                    <p class="text-xs font-bold text-gray-900">${message}</p>
+                </div>
+            `;
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // آلية التبديل بين التبويبات الرئيسية (مجموعات، سجل الإنجاز، فريق العمل)
+        function switchMainTab(tabName) {
+            currentTab = tabName;
+            
+            // تحديث تصميم أزرار التبويبات النشطة
+            document.querySelectorAll('.nav-tab-btn').forEach(btn => {
+                btn.className = "nav-tab-btn text-gray-400 hover:text-black pb-1 transition-all";
+            });
+            
+            if (tabName === 'groups') {
+                document.getElementById('nav-groups').className = "nav-tab-btn text-black border-b-2 border-black pb-1 font-bold transition-all";
+                document.getElementById('tab-content-groups').classList.remove('hidden');
+                document.getElementById('tab-content-calendar').classList.add('hidden');
+                document.getElementById('tab-content-team').classList.add('hidden');
+                // إعادة العرض التلقائي لقائمة المجموعات كخطوة افتراضية للتبويب
+                closeGroupDetail();
+            } 
+            else if (tabName === 'calendar') {
+                document.getElementById('nav-calendar').className = "nav-tab-btn text-black border-b-2 border-black pb-1 font-bold transition-all";
+                document.getElementById('tab-content-groups').classList.add('hidden');
+                document.getElementById('tab-content-calendar').classList.remove('hidden');
+                document.getElementById('tab-content-team').classList.add('hidden');
+                loadArchiveForDate();
+            } 
+            else if (tabName === 'team') {
+                document.getElementById('nav-team').className = "nav-tab-btn text-black border-b-2 border-black pb-1 font-bold transition-all";
+                document.getElementById('tab-content-groups').classList.add('hidden');
+                document.getElementById('tab-content-calendar').classList.add('hidden');
+                document.getElementById('tab-content-team').classList.remove('hidden');
+                renderTeam();
+            }
+        }
+
+        // بناء وعرض قائمة المجموعات النشطة في الشبكة الرئيسية
+        function renderGroupsGrid() {
+            const grid = document.getElementById('groups-grid');
+            grid.innerHTML = '';
+
+            groups.forEach(group => {
+                // حساب عدد المهام الخاصة بهذه المجموعة بناءً على رتبة المستخدم
+                let relatedTasks = tasks.filter(t => t.groupId === group.id);
+                if (currentUser.role !== 'admin') {
+                    relatedTasks = relatedTasks.filter(t => t.assignedTo === currentUser.id);
+                }
+
+                const totalTasks = relatedTasks.length;
+                const completedTasksCount = relatedTasks.filter(t => t.status === 'completed').length;
+                const pendingTasksCount = totalTasks - completedTasksCount;
+
+                const card = document.createElement('div');
+                card.className = "group relative bg-white border border-gray-100 rounded-2xl p-5 hover:border-black hover:shadow-md transition-all duration-300 cursor-pointer text-right flex flex-col justify-between min-h-[190px]";
+                
+                card.innerHTML = `
+                    <div onclick="openGroupDetail('${group.id}')">
+                        <div class="flex items-center justify-between gap-2 mb-3">
+                            <span class="text-[10px] font-bold text-gray-400 bg-neutral-50 border border-neutral-100 px-2.5 py-1 rounded-md">مجموعة عمل</span>
+                            <div class="flex items-center gap-1.5 text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                <span>نشطة</span>
+                            </div>
+                        </div>
+                        <h3 class="text-sm font-bold text-gray-900 group-hover:text-black transition-colors">${group.name}</h3>
+                        <p class="text-xs text-gray-400 mt-1 line-clamp-2 leading-relaxed">${group.description}</p>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-gray-50 flex items-center justify-between gap-2 text-[11px] text-gray-400">
+                        <span>إجمالي المهام: <strong class="text-gray-900">${totalTasks}</strong></span>
+                        <div class="flex items-center gap-2">
+                            <span class="text-emerald-600">منجزة: <strong>${completedTasksCount}</strong></span>
+                            <span class="w-[1px] h-3 bg-gray-200"></span>
+                            <span class="text-amber-600">متبقية: <strong>${pendingTasksCount}</strong></span>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // فتح تفاصيل المجموعة الواحدة
+        function openGroupDetail(groupId) {
+            activeGroupId = groupId;
+            const targetGroup = groups.find(g => g.id === groupId);
+            if (targetGroup) {
+                document.getElementById('groups-list-view').classList.add('hidden');
+                document.getElementById('group-detail-view').classList.remove('hidden');
+                
+                document.getElementById('group-detail-name').innerText = targetGroup.name;
+                document.getElementById('group-detail-desc').innerText = targetGroup.description;
+                
+                renderGroupTasks();
+            }
+        }
+
+        // إغلاق تفاصيل المجموعة والعودة لقائمة المجموعات
+        function closeGroupDetail() {
+            activeGroupId = null;
+            document.getElementById('groups-list-view').classList.remove('hidden');
+            document.getElementById('group-detail-view').classList.add('hidden');
+            renderGroupsGrid();
+        }
+
+        // عرض قائمة المهام التابعة لمجموعة العمل النشطة حالياً بالتصميم الملون المطلوب
+        function renderGroupTasks() {
+            const container = document.getElementById('group-tasks-container');
+            const emptyState = document.getElementById('group-tasks-empty');
+            const filterValue = document.getElementById('task-status-filter').value;
+            
+            container.innerHTML = '';
+
+            let filteredTasks = tasks.filter(t => t.groupId === activeGroupId);
+
+            // تصفية المهام بناءً على الصلاحيات والأدوار
+            if (currentUser.role !== 'admin') {
+                filteredTasks = filteredTasks.filter(t => t.assignedTo === currentUser.id);
+            }
+
+            // تطبيق التصفية حسب الحالة (مكتملة / قيد التنفيذ)
+            if (filterValue !== 'all') {
+                filteredTasks = filteredTasks.filter(t => t.status === filterValue);
+            }
+
+            if (filteredTasks.length === 0) {
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('flex');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+                emptyState.classList.remove('flex');
+            }
+
+            filteredTasks.forEach(task => {
+                const assignee = users.find(u => u.id === task.assignedTo) || { name: 'غير محدد', avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde' };
+                const isCompleted = task.status === 'completed';
+                
+                // جلب تصنيفات الألوان المخصصة من الخريطة
+                const chosenColor = task.color || 'classic';
+                const styleClasses = colorClassMap[chosenColor] || colorClassMap['classic'];
+
+                const card = document.createElement('article');
+                card.className = `group relative flex flex-col justify-between border rounded-2xl p-5 shadow-sm transition-all duration-300 text-right ${styleClasses.card}`;
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between gap-3 mb-3">
+                            <span class="text-[10px] font-bold px-2.5 py-1 rounded-md ${styleClasses.badge}">
+                                ${isCompleted ? 'مكتملة الإنجاز' : 'قيد المتابعة'}
+                            </span>
+                            
+                            <!-- مبدل الحالات السريع -->
+                            <button type="button" class="p-1 rounded-lg border-2 ${isCompleted ? 'border-black bg-black text-white' : 'border-gray-200 text-transparent hover:border-black'} transition-colors shrink-0 flex items-center justify-center w-5 h-5" aria-label="تغيير حالة المهمة" onclick="toggleTaskStatus('${task.id}')">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="w-3.5 h-3.5"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+                            </button>
+                        </div>
+
+                        <h3 class="text-sm font-bold text-gray-950 leading-snug ${isCompleted ? 'line-through opacity-60' : ''}">
+                            ${task.title}
+                        </h3>
+                        <p class="text-xs text-gray-500 mt-2 leading-relaxed ${isCompleted ? 'opacity-65' : ''}">
+                            ${task.description}
+                        </p>
+                    </div>
+
+                    <div class="mt-5 pt-3 border-t border-black/5 flex items-center justify-between gap-4">
+                        <div class="flex items-center gap-2">
+                            <img src="${assignee.avatar}" alt="${assignee.name}" class="w-6 h-6 rounded-full object-cover border border-black/5">
+                            <div class="text-right">
+                                <p class="text-[9px] text-gray-400">مسؤول الإنجاز</p>
+                                <p class="text-xs font-bold text-gray-900">${assignee.name}</p>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col items-end text-[10px] text-gray-400">
+                            <span>التسليم: ${task.dueDate}</span>
+                            ${isCompleted && task.completedDate ? `<span class="text-emerald-600 font-bold">تم في: ${task.completedDate}</span>` : ''}
+                        </div>
+                    </div>
+
+                    <!-- إمكانية حذف المهمة المتاحة للآدمن فقط -->
+                    <div class="admin-only absolute left-3 top-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button type="button" onclick="deleteTask('${task.id}')" class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all" aria-label="حذف المهمة">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-3.5 h-3.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                            </svg>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            applyRolePermissionsUI();
+        }
+
+        // آلية استرجاع المهام المكتملة بالتاريخ المطلوب عبر السنين والشهور والبدء بفحصها
+        function loadArchiveForDate() {
+            const picker = document.getElementById('history-date-picker');
+            const indicator = document.getElementById('archive-date-indicator');
+            const container = document.getElementById('archive-tasks-container');
+            const emptyState = document.getElementById('archive-empty-state');
+
+            // إذا لم يتم تحديد تاريخ، يتم تعيين تاريخ اليوم كحالة افتراضية
+            if (!picker.value) {
+                const today = new Date();
+                const yyyy = today.getFullYear();
+                const mm = String(today.getMonth() + 1).padStart(2, '0');
+                const dd = String(today.getDate()).padStart(2, '0');
+                picker.value = `${yyyy}-${mm}-${dd}`;
+            }
+
+            const targetDateStr = picker.value;
+            indicator.innerText = `تاريخ الاستعراض: ${targetDateStr}`;
+            container.innerHTML = '';
+
+            // تصفية جميع المهام المنجزة والمكتملة في هذا اليوم بالتحديد عبر السنوات
+            const archivedTasks = tasks.filter(t => t.status === 'completed' && t.completedDate === targetDateStr);
+
+            if (archivedTasks.length === 0) {
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('flex');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+                emptyState.classList.remove('flex');
+            }
+
+            archivedTasks.forEach(task => {
+                const assignee = users.find(u => u.id === task.assignedTo) || { name: 'عضو' };
+                const groupName = (groups.find(g => g.id === task.groupId) || { name: 'مجموعة عامة' }).name;
+                const chosenColor = task.color || 'classic';
+                const styleClasses = colorClassMap[chosenColor] || colorClassMap['classic'];
+
+                const card = document.createElement('article');
+                card.className = `border rounded-2xl p-5 shadow-sm text-right ${styleClasses.card}`;
+                
+                card.innerHTML = `
+                    <div class="flex items-center justify-between gap-2 mb-2">
+                        <span class="text-[10px] font-bold text-gray-500 bg-black/5 px-2.5 py-0.5 rounded-md">${groupName}</span>
+                        <div class="flex items-center gap-1 text-xs text-emerald-600 font-bold">
+                            <span>✓ اكتملت بنجاح</span>
+                        </div>
+                    </div>
+                    <h3 class="text-sm font-bold text-gray-950">${task.title}</h3>
+                    <p class="text-xs text-gray-400 mt-1">${task.description}</p>
+                    
+                    <div class="mt-4 pt-3 border-t border-black/5 flex items-center justify-between text-[11px] text-gray-500">
+                        <span>المنجز: <strong>${assignee.name}</strong></span>
+                        <span>الموعد المطلوب كان: ${task.dueDate}</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // عرض وتعبئة فريق العمل في الصفحة المخصصة لهم
+        function renderTeam() {
+            const grid = document.getElementById('team-grid');
+            grid.innerHTML = '';
+
+            users.forEach(user => {
+                const isAdmin = user.role === 'admin';
+                const card = document.createElement('div');
+                card.className = "bg-white border border-gray-100 rounded-2xl p-5 flex items-center justify-between gap-4 text-right shadow-sm";
+                
+                card.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <img src="${user.avatar}" alt="${user.name}" class="w-11 h-11 rounded-2xl object-cover shrink-0 border border-black/5">
+                        <div>
+                            <h4 class="text-sm font-bold text-gray-950">${user.name}</h4>
+                            <p class="text-xs text-gray-400 mt-0.5">${user.email}</p>
+                        </div>
+                    </div>
+                    <span class="text-[10px] font-bold px-3 py-1.5 rounded-xl ${isAdmin ? 'bg-black text-white' : 'bg-neutral-50 border border-neutral-100 text-gray-600'} shrink-0">
+                        ${isAdmin ? 'مدير نظام' : 'مستلم مهام'}
+                    </span>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // تغيير وإدراج حالة المهام مع تخزين تاريخ الإنجاز الفعلي
+        function toggleTaskStatus(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                if (currentUser.role !== 'admin' && task.assignedTo !== currentUser.id) {
+                    showToast('الصلاحية غير كافية لتعديل مهام الآخرين', 'warning');
+                    return;
+                }
+
+                if (task.status === 'completed') {
+                    task.status = 'pending';
+                    task.completedDate = null;
+                    showToast('تمت إعادة المهمة إلى قائمة التنفيذ والعمل الفعلي');
+                } else {
+                    task.status = 'completed';
+                    // حفظ تاريخ اليوم بالتنسيق المطلوب YYYY-MM-DD لتقويم الإنجاز السنوي
+                    const today = new Date();
+                    const yyyy = today.getFullYear();
+                    const mm = String(today.getMonth() + 1).padStart(2, '0');
+                    const dd = String(today.getDate()).padStart(2, '0');
+                    task.completedDate = `${yyyy}-${mm}-${dd}`;
+                    showToast('أحسنت! تم تأكيد إنجاز المهمة وحفظ تاريخ الإنجاز');
+                }
+
+                if (activeGroupId) renderGroupTasks();
+                if (currentTab === 'calendar') loadArchiveForDate();
+                renderGroupsGrid();
+            }
+        }
+
+        // حذف مهمة من قبل الآدمن
+        function deleteTask(taskId) {
+            if (currentUser.role !== 'admin') {
+                showToast('الصلاحيات غير كافية لحذف المهام الحساسة', 'warning');
+                return;
+            }
+            tasks = tasks.filter(t => t.id !== taskId);
+            showToast('تم حذف وإلغاء إسناد المهمة بنجاح');
+            renderGroupTasks();
+            renderGroupsGrid();
+        }
+
+        // تفعيل قيود العرض لإظهار خيارات الآدمن والتحقق منها فورياً
+        function applyRolePermissionsUI() {
+            const adminElements = document.querySelectorAll('.admin-only');
+            const welcomeMessage = document.getElementById('welcome-message');
+
+            if (currentUser.role === 'admin') {
+                adminElements.forEach(el => el.classList.remove('hidden'));
+                document.getElementById('current-user-avatar').src = currentUser.avatar;
+                document.getElementById('current-user-name').innerText = currentUser.name;
+                document.getElementById('current-user-role-badge').innerText = "مدير النظام";
+            } else {
+                adminElements.forEach(el => el.classList.add('hidden'));
+                document.getElementById('current-user-avatar').src = currentUser.avatar;
+                document.getElementById('current-user-name').innerText = currentUser.name;
+                document.getElementById('current-user-role-badge').innerText = "مستلم مهام";
+            }
+        }
+
+        // تهيئة الأحداث وربط النماذج والنوافذ التفاعلية عند تحميل الصفحة بالكامل
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // تهيئة العرض والبيانات
+            renderGroupsGrid();
+            applyRolePermissionsUI();
+
+            // مبدل محاكاة الأدوار في الهيدر لسهولة الفحص
+            document.getElementById('toggle-role-btn').addEventListener('click', () => {
+                if (currentUser.id === 'user-1') {
+                    // الانتقال لمحاكاة حساب مستخدم عادي (سارة بلقاسم)
+                    currentUser = users[1];
+                    document.getElementById('toggle-role-btn').innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                        </svg>
+                        <span>تبديل الدور لمدير النظام</span>
+                    `;
+                    showToast('أنت الآن تتصفح المنصة كـ: سارة بلقاسم (مستلم مهام)', 'warning');
+                } else {
+                    // العودة للمدير
+                    currentUser = users[0];
+                    document.getElementById('toggle-role-btn').innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                        </svg>
+                        <span>تبديل الدور لمستخدم عادي</span>
+                    `;
+                    showToast('تمت العودة لحساب: مدير النظام (كامل الصلاحيات)', 'success');
+                }
+
+                // تحديث الواجهات فورا بعد تبديل الدور
+                applyRolePermissionsUI();
+                if (activeGroupId) renderGroupTasks();
+                renderGroupsGrid();
+                if (currentTab === 'calendar') loadArchiveForDate();
+                if (currentTab === 'team') renderTeam();
+            });
+
+            // فتح وإغلاق النوافذ المنبثقة
+            const openModal = (id) => {
+                document.getElementById(id).classList.remove('hidden');
+            };
+            const closeModal = (id) => {
+                document.getElementById(id).classList.add('hidden');
+            };
+
+            // تفعيل مستمعي الأزرار للفتح
+            document.getElementById('open-add-user-modal').addEventListener('click', () => openModal('add-user-modal'));
+            document.getElementById('open-add-group-modal').addEventListener('click', () => openModal('add-group-modal'));
+            document.getElementById('open-add-task-modal').addEventListener('click', () => {
+                // تصفية وتعبئة الموظفين في خيارات الإسناد قبل فتح النافذة
+                const userSelect = document.getElementById('new-task-user');
+                userSelect.innerHTML = '';
+                users.forEach(u => {
+                    const opt = document.createElement('option');
+                    opt.value = u.id;
+                    opt.innerText = u.name;
+                    userSelect.appendChild(opt);
+                });
+                openModal('add-task-modal');
+            });
+
+            // إغلاق النوافذ عند النقر على الخلفيات والمؤشرات
+            document.querySelectorAll('.modal-close-trigger').forEach(trigger => {
+                trigger.addEventListener('click', () => {
+                    const modal = trigger.closest('[role="dialog"]');
+                    if (modal) closeModal(modal.id);
+                });
+            });
+
+            // معالجة نموذج إضافة مستخدم جديد (Admin Only)
+            document.getElementById('add-user-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const name = document.getElementById('new-user-name');
+                const email = document.getElementById('new-user-email');
+                const role = document.getElementById('new-user-role');
+
+                const newUser = {
+                    id: 'user-' + Date.now(),
+                    name: name.value,
+                    email: email.value,
+                    role: role.value,
+                    avatar: `https://images.unsplash.com/photo-${1500000000000 + Math.floor(Math.random() * 80000)}?q=80&w=100&auto=format&fit=crop`
+                };
+
+                users.push(newUser);
+                showToast(`تم إشراك العضو الجديد: ${newUser.name} بنجاح`);
+                
+                name.value = '';
+                email.value = '';
+                closeModal('add-user-modal');
+                if (currentTab === 'team') renderTeam();
+            });
+
+            // معالجة نموذج إضافة مجموعة جديدة
+            document.getElementById('add-group-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const name = document.getElementById('new-group-name');
+                const desc = document.getElementById('new-group-desc');
+
+                const newGroup = {
+                    id: 'group-' + Date.now(),
+                    name: name.value,
+                    description: desc.value
+                };
+
+                groups.push(newGroup);
+                showToast(`تم إنشاء المجموعة الجديدة بنجاح: ${newGroup.name}`);
+                
+                name.value = '';
+                desc.value = '';
+                closeModal('add-group-modal');
+                renderGroupsGrid();
+            });
+
+            // معالجة نموذج إضافة مهمة جديدة وتلوينها بالتفاصيل المطلوبة
+            document.getElementById('add-task-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const title = document.getElementById('new-task-title');
+                const desc = document.getElementById('new-task-desc');
+                const user = document.getElementById('new-task-user');
+                const date = document.getElementById('new-task-date');
+                
+                // جلب قيمة الراديو المختار للون المهمة
+                const colorRadios = document.getElementsByName('new-task-color');
+                let selectedColor = 'classic';
+                for (let i = 0; i < colorRadios.length; i++) {
+                    if (colorRadios[i].checked) {
+                        selectedColor = colorRadios[i].value;
+                        break;
+                    }
+                }
+
+                const newTask = {
+                    id: 'task-' + Date.now(),
+                    title: title.value,
+                    description: desc.value,
+                    groupId: activeGroupId,
+                    assignedTo: user.value,
+                    status: 'pending',
+                    dueDate: date.value,
+                    color: selectedColor, // حفظ ميزة اختيار اللون
+                    completedDate: null
+                };
+
+                tasks.push(newTask);
+                showToast(`تم إسناد المهمة وجاري تتبع العمل بالفريق`);
+                
+                title.value = '';
+                desc.value = '';
+                date.value = '';
+                // إعادة تعيين الراديو الافتراضي للأبيض
+                colorRadios[0].checked = true;
+                
+                closeModal('add-task-modal');
+                renderGroupTasks();
+            });
+
+        });
+    </script>
+</body>
+</html>

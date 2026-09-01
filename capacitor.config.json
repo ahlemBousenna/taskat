@@ -1,0 +1,9 @@
+{
+  "appId": "com.taskinimurex.app",
+  "appName": "taskinimurex",
+  "webDir": "out",
+  "server": {
+    "url": "https://taskini-murex.vercel.app/",
+    "cleartext": true
+  }
+}

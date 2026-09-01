@@ -1,0 +1,43 @@
+{
+  "name": "ديجي‌تاسك - إدارة المهام الفاخرة",
+  "short_name": "ديجي‌تاسك",
+  "description": "منصة فاخرة لإدارة المهام وتتبع الإنتاجية اليومية لفريق العمل",
+  "start_url": "/",
+  "id": "/",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "fullscreen"
+  ],
+  "background_color": "#FAFBFB",
+  "theme_color": "#111827",
+  "orientation": "any",
+  "scope": "/",
+  "categories": [
+    "productivity",
+    "utilities"
+  ],
+  "dir": "rtl",
+  "lang": "ar",
+  "icons": [
+    {
+      "src": "/digitask-icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/digitask-icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "related_applications": [
+    {
+      "platform": "webapp",
+      "url": "/manifest.json"
+    }
+  ],
+  "prefer_related_applications": false
+}

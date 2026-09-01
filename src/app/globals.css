@@ -1,0 +1,119 @@
+@import "tailwindcss";
+
+@theme {
+  --color-theme-bg: var(--bg-primary);
+  --color-theme-panel: var(--bg-panel);
+  --color-theme-border: var(--border-theme);
+  --color-theme-text: var(--text-primary);
+  --color-theme-text-muted: var(--text-secondary);
+  --color-theme-input: var(--bg-input);
+  --color-theme-accent: var(--theme-accent);
+  --color-theme-accent-hover: var(--theme-accent-hover);
+}
+
+:root, [data-theme="light"] {
+  --bg-primary: #FAFBFB;
+  --bg-panel: #FFFFFF;
+  --border-theme: #F3F4F6; /* gray-100 */
+  --text-primary: #111827; /* gray-900 */
+  --text-secondary: #6B7280; /* gray-500 */
+  --bg-input: #F9FAFB; /* gray-50 */
+  --theme-accent: #111827; /* black */
+  --theme-accent-hover: #1F2937; /* gray-800 */
+  --font-sans: var(--font-tajawal), var(--font-plus-jakarta-sans), sans-serif;
+}
+
+[data-theme="chatgpt-dark"] {
+  --bg-primary: #0D0D0D;
+  --bg-panel: #171717;
+  --border-theme: #2F2F2F;
+  --text-primary: #ECECEC;
+  --text-secondary: #B4B4B4;
+  --bg-input: #212121;
+  --theme-accent: #FFFFFF;
+  --theme-accent-hover: #E5E7EB;
+}
+
+[data-theme="purple-dark"] {
+  --bg-primary: #0B0A0F;
+  --bg-panel: #151221;
+  --border-theme: #2C2742;
+  --text-primary: #F3F1F8;
+  --text-secondary: #A29CB8;
+  --bg-input: #1D1930;
+  --theme-accent: #8B5CF6;
+  --theme-accent-hover: #A78BFA;
+}
+
+[data-theme="midnight-blue"] {
+  --bg-primary: #070B13;
+  --bg-panel: #0F172A;
+  --border-theme: #1E293B;
+  --text-primary: #F1F5F9;
+  --text-secondary: #94A3B8;
+  --bg-input: #1E293B;
+  --theme-accent: #38BDF8;
+  --theme-accent-hover: #7DD3FC;
+}
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@keyframes modal-fade-in {
+  from { opacity: 0; transform: scale(0.97) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.animate-modal-in {
+  animation: modal-fade-in 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes toast-in { 
+  from { opacity: 0; transform: translateY(12px); } 
+  to { opacity: 1; transform: translateY(0); } 
+}
+
+.animate-toast-in {
+  animation: toast-in 0.3s ease-out forwards;
+}
+
+/* تخصيص مدخلات التاريخ وتوسيع منطقة النقر للتقويم */
+input[type="date"] {
+  position: relative;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: auto;
+  height: auto;
+  color: transparent;
+  background: transparent;
+  cursor: pointer;
+  z-index: 10;
+}
+
+@keyframes slide-in-left {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+.animate-slide-in-left {
+  animation: slide-in-left 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
